@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="input-panel">
+    <h2>Dataset Builder <span class="edit-text">Edit</span></h2>
+    <form id="dataset-form" method="POST">
+        <div class="input-group">
+            <label>Number of Rows:</label>
+            <input type="number" name="row_count" value="50" min="1" required>
+        </div>
+
+        <div id="columns">
+            <div class="column-group">
+                <select name="column_type">
+                    <optgroup label="Personal">
+                        <option value="name">Name</option>
+                        <option value="first_name">First Name</option>
+                        <option value="last_name">Last Name</option>
+                        <option value="age">Age</option>
+                        <option value="gender">Gender</option>
+                        <option value="job">Job</option>
+                    </optgroup>
+                    <optgroup label="Contact">
+                        <option value="email">Email</option>
+                        <option value="phone">Phone</option>
+                    </optgroup>
+                    <optgroup label="Location">
+                        <option value="address">Address</option>
+                        <option value="city">City</option>
+                        <option value="state">State</option>
+                        <option value="country">Country</option>
+                        <option value="zipcode">ZIP Code</option>
+                        <option value="latitude">Latitude</option>
+                        <option value="longitude">Longitude</option>
+                    </optgroup>
+                    <optgroup label="Date/Time">
+                        <option value="date">Date</option>
+                        <option value="time">Time</option>
+                        <option value="datetime">DateTime</option>
+                        <option value="year">Year</option>
+                        <option value="month">Month</option>
+                        <option value="day">Day</option>
+                    </optgroup>
+                    <optgroup label="Financial">
+                        <option value="credit_card">Credit Card</option>
+                        <option value="currency">Currency</option>
+                        <option value="price">Price</option>
+                    </optgroup>
+                    <optgroup label="Text">
+                        <option value="text">Sentence</option>
+                        <option value="paragraph">Paragraph</option>
+                        <option value="word">Word</option>
+                    </optgroup>
+                    <optgroup label="Miscellaneous">
+                        <option value="boolean">Boolean</option>
+                        <option value="uuid">UUID</option>
+                        <option value="color">Color</option>
+                        <option value="ip_address">IP Address</option>
+                        <option value="url">URL</option>
+                        <option value="company">Company</option>
+                    </optgroup>
+                </select>
+                <input name="column_name" placeholder="Column Name" required>
+                <i class="fa fa-times delete-column" aria-label="Delete column"></i>
+            </div>
+        </div>
+        <br>
+        <button type="button" onclick="addColumn()">Add New Column</button><br><br>
+
+        <div class="toggle-group">
+            <label class="toggle-label">Or</label>
+            <input type="checkbox" id="or-toggle" class="toggle-input" aria-label="Toggle alternative option">
+            <label for="or-toggle" class="toggle-slider"></label>
+        </div>
+        <button type="button" class="advance-settings" aria-label="Open advanced settings">Advance Settings</button>
+    </form>
+</section>
+
+<section class="edit-panel">
+    <h3>Fields</h3>
+    <ul id="fields-list" role="list">
+        <!-- Populated dynamically by JavaScript -->
+    </ul>
+    <button type="button" id="generate-preview" aria-label="Generate preview of first 3 rows">See First 3 Rows</button>
+    <button type="submit" form="dataset-form" id="generate" aria-label="Generate full dataset">Download</button>
+    <table id="preview-table" role="grid">
+        <thead>
+            <tr id="preview-headers"></tr>
+        </thead>
+        <tbody id="preview-body"></tbody>
+    </table>
+</section>
+
+<section class="download-section">
+    <form id="download-form" method="POST">
+        <label for="file_name">File Name:</label>
+        <input type="text" name="file_name" id="file_name" placeholder="my_dataset_1" aria-label="File name input">
+        <label for="file_format">Format:</label>
+        <select name="file_format" id="file_format" aria-label="File format selection">
+            <option value="csv" selected>CSV</option>
+            <option value="json">JSON</option>
+        </select>
+        <button type="submit" class="download" aria-label="Download dataset">Download Full Dataset <i class="fas fa-arrow-down"></i></button>
+        <!-- Hidden inputs to pass column data -->
+        <div id="hidden-columns"></div>
+    </form>
+</section>
+
+<section class="instructions">
+    <h3>Instructions</h3>
+    <div class="accordion">
+        <button class="accordion-header" aria-expanded="false" aria-controls="step1">Step 1: Configure Dataset</button>
+        <div class="accordion-content" id="step1">
+            <p>Adjust the number of rows and add columns using the form above.</p>
+        </div>
+        <button class="accordion-header" aria-expanded="false" aria-controls="step2">Step 2: Edit Fields</button>
+        <div class="accordion-content" id="step2">
+            <p>Use the delete icon to remove unwanted columns.</p>
+        </div>
+        <button class="accordion-header" aria-expanded="false" aria-controls="step3">Step 3: Preview and Generate</button>
+        <div class="accordion-content" id="step3">
+            <p>Click "Generate First 5 Rows to Preview" to see a sample. Use "Generate" to create the full dataset.</p>
+        </div>
+        <button class="accordion-header" aria-expanded="false" aria-controls="step4">Step 4: Download</button>
+        <div class="accordion-content" id="step4">
+            <p>Choose a file name and format, then click "Download" to save your dataset.</p>
+        </div>
+    </div>
+</section>
+
+<script>
+function addColumn() {
+    const container = document.getElementById("columns");
+    const newColumn = document.createElement("div");
+    newColumn.classList.add("column-group");
+    newColumn.innerHTML = `
+        <select name="column_type">
+            <optgroup label="Personal">
+                <option value="name">Name</option>
+                <option value="first_name">First Name</option>
+                <option value="last_name">Last Name</option>
+                <option value="age">Age</option>
+                <option value="gender">Gender</option>
+                <option value="job">Job</option>
+            </optgroup>
+            <optgroup label="Contact">
+                <option value="email">Email</option>
+                <option value="phone">Phone</option>
+            </optgroup>
+            <optgroup label="Location">
+                <option value="address">Address</option>
+                <option value="city">City</option>
+                <option value="state">State</option>
+                <option value="country">Country</option>
+                <option value="zipcode">ZIP Code</option>
+                <option value="latitude">Latitude</option>
+                <option value="longitude">Longitude</option>
+            </optgroup>
+            <optgroup label="Date/Time">
+                <option value="date">Date</option>
+                <option value="time">Time</option>
+                <option value="datetime">DateTime</option>
+                <option value="year">Year</option>
+                <option value="month">Month</option>
+                <option value="day">Day</option>
+            </optgroup>
+            <optgroup label="Financial">
+                <option value="credit_card">Credit Card</option>
+                <option value="currency">Currency</option>
+                <option value="price">Price</option>
+            </optgroup>
+            <optgroup label="Text">
+                <option value="text">Sentence</option>
+                <option value="paragraph">Paragraph</option>
+                <option value="word">Word</option>
+            </optgroup>
+            <optgroup label="Miscellaneous">
+                <option value="boolean">Boolean</option>
+                <option value="uuid">UUID</option>
+                <option value="color">Color</option>
+                <option value="ip_address">IP Address</option>
+                <option value="url">URL</option>
+                <option value="company">Company</option>
+            </optgroup>
+        </select>
+        <input name="column_name" placeholder="Column Name" required>
+        <i class="fa fa-times delete-column" aria-label="Delete column"></i>
+    `;
+    container.appendChild(newColumn);
+    updateFieldsList();
+}
+
+function updateFieldsList() {
+    const columns = document.querySelectorAll('.column-group');
+    const fieldsList = document.getElementById('fields-list');
+    const hiddenColumns = document.getElementById('hidden-columns');
+    fieldsList.innerHTML = '';
+    hiddenColumns.innerHTML = '';
+
+    columns.forEach((column, index) => {
+        const name = column.querySelector('input[name="column_name"]').value || `Column ${index + 1}`;
+        const type = column.querySelector('select[name="column_type"]').value;
+        const li = document.createElement('li');
+        li.setAttribute('data-type', type);
+        li.innerHTML = `${name} <span class="data-type">${type}</span>`;
+        fieldsList.appendChild(li);
+
+        // Add hidden inputs for download form
+        hiddenColumns.innerHTML += `
+            <input type="hidden" name="column_name" value="${name}">
+            <input type="hidden" name="column_type" value="${type}">
+        `;
+    });
+}
+
+document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('delete-column')) {
+        event.target.parentElement.remove();
+        updateFieldsList();
+    }
+});
+
+document.addEventListener('input', function(event) {
+    if (event.target.name === 'column_name' || event.target.name === 'column_type') {
+        updateFieldsList();
+    }
+});
+
+document.getElementById('generate-preview').addEventListener('click', function() {
+    const formData = new FormData(document.getElementById('dataset-form'));
+    formData.append('preview', 'true');
+
+    fetch('/', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert(data.error);
+            return;
+        }
+
+        const headers = document.getElementById('preview-headers');
+        const body = document.getElementById('preview-body');
+        headers.innerHTML = '';
+        body.innerHTML = '';
+
+        // Generate table headers
+        const columnNames = Object.keys(data.preview[0]).filter(key => !key.endsWith('_valid'));
+        columnNames.forEach(name => {
+            const th = document.createElement('th');
+            th.textContent = name;
+            headers.appendChild(th);
+        });
+
+        // Generate table rows
+        data.preview.forEach(row => {
+            const tr = document.createElement('tr');
+            columnNames.forEach(name => {
+                const td = document.createElement('td');
+                td.textContent = row[name];
+                if (name === 'email' && !row[`${name}_valid`]) {
+                    td.innerHTML += ' <i class="fas fa-exclamation-triangle invalid-email" aria-label="Invalid email"></i>';
+                }
+                tr.appendChild(td);
+            });
+            body.appendChild(tr);
+        });
+    })
+    .catch(error => {
+        console.error('Error generating preview:', error);
+        alert('Failed to generate preview.');
+    });
+});
+</script>
+{% endblock %}
