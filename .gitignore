@@ -1,0 +1,21 @@
+# Python compiled files
+__pycache__/
+*.pyc
+
+# Flask environment files
+.flask_env/
+.flaskenv
+
+# Virtual environments
+venv/
+env/
+
+# Environment variables
+.env
+
+# macOS system files
+.DS_Store
+
+# Generated dataset files
+*.csv
+*.json
